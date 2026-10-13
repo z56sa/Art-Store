@@ -186,15 +186,15 @@ function renderMaps() {
   }).join('');
 }
 
-// ================= INNER MAP PRODUCTS MODAL =================
+// ================= INNER MAP PRODUCTS MODAL (بطاقات كبيرة وجميلة مع صور) =================
 function openMapProductsModal(mapId) {
   mapsList = getStoredMaps();
   const map = mapsList.find(m => m.id === mapId);
   if (!map) return;
 
   selectedMapForProducts = map;
-  document.getElementById("modalProductsMapTitle").textContent = `منتجات وقطع: ${map.title}`;
-  document.getElementById("modalProductsMapDesc").textContent = `العناصر، السكريبتات، والإضافات الحصرية المتاحة للشراء الفوري داخل هذا الماب.`;
+  document.getElementById("modalProductsMapTitle").textContent = `منتجات وعناصر: ${map.title}`;
+  document.getElementById("modalProductsMapDesc").textContent = `تصفح واشترِ المنتجات الحصرية الخاصة بهذا الماب مباشرة مع الاستلام الفوري.`;
 
   const container = document.getElementById("innerProductsGrid");
   const products = map.products || [];
@@ -203,28 +203,44 @@ function openMapProductsModal(mapId) {
     container.innerHTML = `
       <div class="empty-state-box">
         <i class="fa-solid fa-box-open"></i>
-        <p>لا توجد منتجات إضافية مضافة لهذا الماب حالياً.</p>
-        <span>يمكن للإدارة إضافة عناصر من لوحة التحكم.</span>
+        <p>لا توجد منتجات مضافة لهذا الماب حالياً.</p>
+        <span>يمكن للمالك إضافة عناصر من لوحة التحكم.</span>
       </div>
     `;
   } else {
-    container.innerHTML = products.map(prod => `
-      <div class="inner-product-card">
-        <div class="inner-prod-header">
-          <h4><i class="fa-solid fa-cube text-neon"></i> ${prod.title}</h4>
-          <span class="inner-prod-price">$${Number(prod.price).toFixed(2)}</span>
-        </div>
-        <p class="inner-prod-desc">${prod.desc || 'عنصر احترافي متوافق مع الماب'}</p>
-        <div class="inner-prod-actions">
-          <button class="btn btn-primary btn-sm" onclick="addProductToCart('${map.title}', '${prod.title}', ${prod.price})">
-            <i class="fa-solid fa-cart-plus"></i> أضف للسلة
-          </button>
-          <button class="btn btn-secondary btn-sm" onclick="openCheckoutSingle('${prod.title} (${map.title})', ${prod.price})">
-            <i class="fa-solid fa-bolt"></i> شراء سريع
-          </button>
-        </div>
-      </div>
-    `).join('');
+    container.innerHTML = products.map(prod => {
+      const prodImg = prod.image || map.image;
+      return `
+        <article class="inner-product-card-large">
+          <div class="inner-prod-thumb-wrap">
+            <img src="${prodImg}" alt="${prod.title}" class="inner-prod-img" onerror="this.src='${map.image}';" />
+            <span class="inner-prod-badge-tag"><i class="fa-solid fa-cube"></i> ${map.category}</span>
+          </div>
+
+          <div class="inner-prod-body">
+            <div class="inner-prod-header">
+              <h3 class="inner-prod-title">${prod.title}</h3>
+              <div class="inner-prod-price-tag">$${Number(prod.price).toFixed(2)}</div>
+            </div>
+            <p class="inner-prod-desc">${prod.desc || 'عنصر احترافي متوافق مع الماب'}</p>
+            
+            <div class="inner-prod-bottom">
+              <div class="inner-prod-status">
+                <span class="card-status-dot"></span> متوفر للتحميل الفوري
+              </div>
+              <div class="inner-prod-actions">
+                <button class="btn btn-cart-add" onclick="addProductToCart('${map.title}', '${prod.title}', ${prod.price})" title="إضافة للسلة">
+                  <i class="fa-solid fa-cart-plus"></i>
+                </button>
+                <button class="btn btn-buy" onclick="openCheckoutSingle('${prod.title} (${map.title})', ${prod.price})">
+                  <i class="fa-solid fa-bolt"></i> اشترِ الآن
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join('');
   }
 
   document.getElementById("mapProductsModal").classList.add("active");
@@ -411,6 +427,18 @@ function backToAuthStep1() {
   if (otpInput) otpInput.value = "";
 }
 
+// Owner credentials defined by user
+const OWNER_EMAIL = "bdalkrymbyd4@gmail.com";
+const OWNER_PHONE = "0502683998";
+
+function checkIsOwner(input) {
+  if (!input) return false;
+  const cleanInput = input.trim().toLowerCase().replace(/[\s-]/g, "");
+  const cleanOwnerEmail = OWNER_EMAIL.toLowerCase();
+  const cleanOwnerPhone = OWNER_PHONE;
+  return cleanInput === cleanOwnerEmail || cleanInput === cleanOwnerPhone || cleanInput.endsWith("0502683998");
+}
+
 function handleVerifyOtp(e) {
   e.preventDefault();
   const enteredCode = document.getElementById("otpCodeInput").value.trim();
@@ -422,27 +450,60 @@ function handleVerifyOtp(e) {
 
   // Successful Login
   currentUser = currentOtpTarget;
-  document.getElementById("loginBtnText").textContent = currentUser.length > 15 ? currentUser.substring(0, 15) + "..." : currentUser;
-  document.getElementById("loginModal").classList.remove("active");
-  backToAuthStep1();
-  showToast(`تم تأكيد الحساب وتسجيل الدخول بنجاح! مرحباً بك.`);
-}
+  const isOwner = checkIsOwner(currentUser);
 
-// ================= ADMIN DASHBOARD (فقط للإدارة) =================
-function openAdminPanel() {
-  const isAuthed = sessionStorage.getItem(STORAGE_ADMIN_AUTH_KEY) === "true";
-  const lock = document.getElementById("adminLockScreen");
-  const content = document.getElementById("adminContentScreen");
-
-  if (isAuthed) {
-    lock.style.display = "none";
-    content.style.display = "block";
-    initAdminView();
+  if (isOwner) {
+    sessionStorage.setItem(STORAGE_ADMIN_AUTH_KEY, "true");
+    document.getElementById("loginBtnText").innerHTML = `<i class="fa-solid fa-crown text-neon"></i> المالك`;
+    const ownerNavBtn = document.getElementById("ownerAdminNavBtn");
+    if (ownerNavBtn) ownerNavBtn.style.display = "inline-flex";
+    showToast(`مرحباً بك يا مالك المتجر! تم تفعيل لوحة التحكم الخاصة بك 👑`);
   } else {
-    lock.style.display = "block";
-    content.style.display = "none";
+    document.getElementById("loginBtnText").textContent = currentUser.length > 15 ? currentUser.substring(0, 15) + "..." : currentUser;
+    const ownerNavBtn = document.getElementById("ownerAdminNavBtn");
+    if (ownerNavBtn) ownerNavBtn.style.display = "none";
+    showToast(`تم تأكيد الحساب وتسجيل الدخول بنجاح! مرحباً بك.`);
   }
 
+  document.getElementById("loginModal").classList.remove("active");
+  backToAuthStep1();
+}
+
+function openLoginModal() {
+  if (currentUser) {
+    const isOwner = checkIsOwner(currentUser);
+    const title = isOwner ? "حساب المالك" : "الحساب";
+    if (confirm(`أنت مسجل حالياً كـ ${title} (${currentUser}). هل تريد تسجيل الخروج؟`)) {
+      currentUser = null;
+      sessionStorage.removeItem(STORAGE_ADMIN_AUTH_KEY);
+      document.getElementById("loginBtnText").textContent = "تسجيل الدخول";
+      const ownerNavBtn = document.getElementById("ownerAdminNavBtn");
+      if (ownerNavBtn) ownerNavBtn.style.display = "none";
+      showToast("تم تسجيل الخروج بنجاح.");
+    }
+    return;
+  }
+
+  backToAuthStep1();
+  document.getElementById("loginModal").classList.add("active");
+}
+
+// ================= ADMIN DASHBOARD (للمالك فقط) =================
+function openAdminPanel() {
+  const isAuthed = sessionStorage.getItem(STORAGE_ADMIN_AUTH_KEY) === "true";
+
+  if (!isAuthed || !checkIsOwner(currentUser)) {
+    alert("لوحة التحكم مخصصة لمالك المتجر فقط! يرجى تسجيل الدخول بحساب المالك (bdalkrymbyd4@gmail.com أو 0502683998).");
+    openLoginModal();
+    return;
+  }
+
+  const lock = document.getElementById("adminLockScreen");
+  const content = document.getElementById("adminContentScreen");
+  lock.style.display = "none";
+  content.style.display = "block";
+
+  initAdminView();
   document.getElementById("adminModal").classList.add("active");
 }
 
@@ -696,6 +757,8 @@ function handleSaveProduct(e) {
   const editProdId = document.getElementById("editProductId").value;
   const title = document.getElementById("productTitleInput").value.trim();
   const price = parseFloat(document.getElementById("productPriceInput").value) || 0;
+  const imgInput = document.getElementById("productImageInput");
+  const imgUrl = (imgInput && imgInput.value.trim()) || map.image;
   const desc = document.getElementById("productDescInput").value.trim();
 
   if (editProdId) {
@@ -703,6 +766,7 @@ function handleSaveProduct(e) {
     if (idx !== -1) {
       map.products[idx].title = title;
       map.products[idx].price = price;
+      map.products[idx].image = imgUrl;
       map.products[idx].desc = desc;
     }
     showToast("تم تحديث المنتج بنجاح!");
@@ -711,6 +775,7 @@ function handleSaveProduct(e) {
       id: `prod-${Date.now()}`,
       title: title,
       price: price,
+      image: imgUrl,
       desc: desc
     });
     showToast("تمت إضافة المنتج إلى الماب بنجاح!");
@@ -756,37 +821,9 @@ function openDiscordAlert() {
 document.addEventListener("DOMContentLoaded", () => {
   renderMaps();
 
-  // Navigation / Action Buttons
-  const openAdminBtn = document.getElementById("openAdminBtn");
-  if (openAdminBtn) openAdminBtn.addEventListener("click", openAdminPanel);
-
-  // Owner Secret Trigger (Click logo 3 times OR Ctrl+Shift+A)
-  let logoClickCount = 0;
-  let logoClickTimer = null;
-  const logo = document.getElementById("ownerSecretLogo");
-  if (logo) {
-    logo.style.cursor = "pointer";
-    logo.addEventListener("click", () => {
-      logoClickCount++;
-      clearTimeout(logoClickTimer);
-      if (logoClickCount >= 3) {
-        logoClickCount = 0;
-        openAdminPanel();
-      } else {
-        logoClickTimer = setTimeout(() => {
-          logoClickCount = 0;
-        }, 1200);
-      }
-    });
-  }
-
-  // Keyboard shortcut for Owner only: Ctrl + Shift + A
-  document.addEventListener("keydown", (e) => {
-    if (e.ctrlKey && e.shiftKey && (e.key === "A" || e.key === "a")) {
-      e.preventDefault();
-      openAdminPanel();
-    }
-  });
+  // Owner Navigation Button
+  const ownerNavBtn = document.getElementById("ownerAdminNavBtn");
+  if (ownerNavBtn) ownerNavBtn.addEventListener("click", openAdminPanel);
 
   const loginBtn = document.getElementById("loginBtn");
   if (loginBtn) loginBtn.addEventListener("click", openLoginModal);

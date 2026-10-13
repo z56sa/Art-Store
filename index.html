@@ -29,6 +29,9 @@
         <a href="#hero" class="nav-link active"><i class="fa-solid fa-house"></i> الرئيسية</a>
         <a href="#maps" class="nav-link"><i class="fa-solid fa-gamepad"></i> تصفح المابات</a>
         <a href="#custom-orders" class="nav-link"><i class="fa-solid fa-wand-magic-sparkles"></i> طلبات خاصة</a>
+        <button class="nav-link owner-badge-btn" id="ownerAdminNavBtn" style="display: none; background: rgba(0, 229, 255, 0.15); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 8px; cursor: pointer;">
+          <i class="fa-solid fa-crown text-neon"></i> لوحة تحكم المالك
+        </button>
       </nav>
 
       <div class="nav-actions">
@@ -307,12 +310,16 @@
               <div class="form-row">
                 <div class="form-group">
                   <label>اسم المنتج / العنصر</label>
-                  <input type="text" id="productTitleInput" required placeholder="مثال: حزمة سيوف أسطورية أو فاكهة تنين" />
+                  <input type="text" id="productTitleInput" required placeholder="مثال: فاكهة التنين الأسطورية" />
                 </div>
                 <div class="form-group">
                   <label>السعر بالدولار ($)</label>
                   <input type="number" step="0.01" id="productPriceInput" required placeholder="9.99" />
                 </div>
+              </div>
+              <div class="form-group">
+                <label>رابط صورة المنتج (اختياري)</label>
+                <input type="text" id="productImageInput" placeholder="رابط صورة المنتج أو اتركه فارغاً ليأخذ صورة الماب" />
               </div>
               <div class="form-group">
                 <label>وصف المنتج</label>
