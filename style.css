@@ -866,13 +866,17 @@ body {
 
 /* Modal Admin - Bigger & Spacious for Owner */
 .modal-admin {
-  max-width: 1150px;
-  width: 96%;
-  max-height: 90vh;
+  max-width: 99vw;
+  width: 99vw;
+  max-height: 94vh;
   overflow-y: auto;
-  padding: 2.8rem;
+  padding: 2rem 2.5rem;
   border: 1.5px solid var(--neon-blue);
   box-shadow: 0 0 45px rgba(0, 229, 255, 0.4), 0 0 30px rgba(157, 78, 221, 0.3);
+}
+
+#adminModal.modal-overlay {
+  padding: 0.3rem;
 }
 
 .btn-open-modal-products {
@@ -991,7 +995,7 @@ body {
 
 .admin-table-wrap {
   overflow-x: auto;
-  max-height: 380px;
+  max-height: 55vh;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
 }
