@@ -13,9 +13,8 @@ const mapsData = [
     reviewCount: 342,
     price: 29.99,
     priceDisplay: "$29.99",
-    // Official Blox Fruits game thumbnail
-    image: "https://tr.rbxcdn.com/180DAY-4eef11082699ee9b5898bc9166da234a/768/432/Image/Webp/noFilter",
-    fallbackImage: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80",
+    image: "assets/images/blox-fruits.png",
+    fallbackImage: "https://static.wikia.nocookie.net/roblox-blox-piece/images/f/f0/Blox_Fruits_Wiki_Logo.png",
     description: "عالم بحار وجزر متكامل مع نظام فواكه شيطانية وسحر وسيوف، وحوش ورؤساء (Bosses)، ونظام لفل وتطوير شخصيات مفتوح المصدر بالكامل."
   },
   {
@@ -26,9 +25,8 @@ const mapsData = [
     reviewCount: 215,
     price: 19.99,
     priceDisplay: "$19.99",
-    // Official Pet / Egg simulator Roblox thumbnail
-    image: "https://tr.rbxcdn.com/180DAY-506e7eb00c1e6ae82da41e6c46927d6f/768/432/Image/Webp/noFilter",
-    fallbackImage: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80",
+    image: "assets/images/egg-simulator.png",
+    fallbackImage: "https://static.wikia.nocookie.net/pet-simulator/images/2/22/PS99Icon.png",
     description: "محاكي البيض الشهير مع نظام تفقيس نادر، حيوانات أليفة مميزة (Pets) ثلاثية الأبعاد، مناطق وجزر طائرة ونظام اقتصاد تفاعلي ممتع."
   },
   {
@@ -39,9 +37,8 @@ const mapsData = [
     reviewCount: 489,
     price: 24.99,
     priceDisplay: "$24.99",
-    // Official MM2 Roblox thumbnail
-    image: "https://tr.rbxcdn.com/180DAY-ca28b056157f864835697d8ebf1b34e2/768/432/Image/Webp/noFilter",
-    fallbackImage: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80",
+    image: "assets/images/mm2.png",
+    fallbackImage: "https://static.wikia.nocookie.net/murder-mystery-2/images/9/9f/Murder-Mystery-2.png",
     description: "خريطة الغموض الشهيرة MM2 مع نظام كامل للقاتل والشريف والأبرياء، سكينات سكاكين وأسلحة حصرية، خرائط متنوعة وجولات تفاعلية."
   },
   {
@@ -52,9 +49,8 @@ const mapsData = [
     reviewCount: 198,
     price: 27.50,
     priceDisplay: "$27.50",
-    // Official Jailbreak / Heist Roblox thumbnail
-    image: "https://tr.rbxcdn.com/180DAY-76cb17b5bb4d1b822e118fa3602d338f/768/432/Image/Webp/noFilter",
-    fallbackImage: "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80",
+    image: "assets/images/jailbreak.png",
+    fallbackImage: "https://assets.jailbreakchangelogs.com/assets/logos/JBCL_Long_Transparent.png",
     description: "مدينة واقعية واسعة تحتوي على سجن أمني مشدد، بنك، متجر مجوهرات ومتحف قابل للسرقة مع مركبات وطائرات قابلة للقيادة ونظام شرطة ولصوص."
   },
   {
@@ -65,9 +61,8 @@ const mapsData = [
     reviewCount: 520,
     price: 25.00,
     priceDisplay: "$25.00",
-    // Official Adopt Me Roblox thumbnail
-    image: "https://tr.rbxcdn.com/180DAY-eeef7d995cb6c17539ba47ff847d1733/768/432/Image/Webp/noFilter",
-    fallbackImage: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=800&q=80",
+    image: "assets/images/adopt-me.png",
+    fallbackImage: "https://static.wikia.nocookie.net/logopedia/images/0/0e/Adopt_Me%21_%28Alt%29.png",
     description: "عالم جزيرة التبني الممتعة والمبهجة؛ بيوت قابلة للتأثيث، حيوانات أليفة نادرة وتربية، حضانة، مركبات وألعاب وأدوار عائلية رائعة."
   }
 ];
