@@ -1,0 +1,12 @@
+{
+  "name": "roblox-maps-store",
+  "version": "1.0.0",
+  "description": "Roblox custom maps e-commerce dark mode website ready for Render",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>متجر Art Store | مابات روبلوكس الاحترافية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Glowing Background Orbs -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+
+  <!-- Header / Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <span class="logo-icon"><i class="fa-solid fa-palette"></i></span>
+        <span class="logo-text">ART<span class="highlight">STORE</span></span>
+      </div>
+
+      <nav class="nav-links">
+        <a href="#hero" class="nav-link active"><i class="fa-solid fa-house"></i> الرئيسية</a>
+        <a href="#maps" class="nav-link"><i class="fa-solid fa-gamepad"></i> تصفح المابات</a>
+        <a href="#custom-orders" class="nav-link"><i class="fa-solid fa-wand-magic-sparkles"></i> طلبات خاصة</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="cart-btn" id="cartBtn" title="سلة المشتريات">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span class="cart-badge" id="cartCount">0</span>
+        </button>
+        <button class="login-btn" id="loginBtn">
+          <i class="fa-regular fa-user"></i> <span id="loginBtnText">تسجيل الدخول</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="hero-section" id="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="badge-tag"><i class="fa-solid fa-bolt"></i> الجيل القادم من تصاميم روبلوكس</div>
+      <h1 class="hero-title">استكشف عوالم روبلوكس الفريدة</h1>
+      <p class="hero-subtitle">
+        مرحباً بكم في Art Store - متجرك الأول لاقتناء مابات روبلوكس الأصلية والجاهزة للتطوير بأعلى دقة وسكريبتات متطورة.
+      </p>
+      <div class="hero-buttons">
+        <a href="#maps" class="btn btn-primary"><i class="fa-solid fa-compass"></i> تصفح المابات الآن</a>
+        <a href="#custom-orders" class="btn btn-secondary"><i class="fa-solid fa-comments"></i> طلب ماب خاص</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Maps Section -->
+  <main class="main-container" id="maps">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <h2 class="section-title"><i class="fa-solid fa-fire text-neon"></i> المابات المتاحة للبيع</h2>
+        <p class="section-desc">مابات روبلوكس المعتمدة والحصرية المتوفرة حالياً للشراء الفوري مع الدعم الفني والتسليم السريع.</p>
+      </div>
+      <div class="filter-badge">
+        <span><i class="fa-solid fa-check-circle"></i> 5 مابات أصلية معتمدة</span>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="maps-grid" id="mapsGrid">
+      <!-- Cards rendered via JavaScript -->
+    </div>
+  </main>
+
+  <!-- Custom Orders Section -->
+  <section class="custom-orders-section" id="custom-orders">
+    <div class="custom-box">
+      <div class="custom-content">
+        <div class="custom-icon"><i class="fa-solid fa-code-merge"></i></div>
+        <h2>هل تريد ماب مخصص بفكرة فريدة؟</h2>
+        <p>فريقنا من أفضل المطورين والمصممين في Art Store جاهز لتحويل فكرتك إلى واقع متكامل من البناء وحتى البرمجة.</p>
+        <button class="btn btn-primary custom-btn" onclick="openDiscordAlert()">
+          <i class="fa-brands fa-discord"></i> تواصل مع فريق التطوير
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Login Modal -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-card">
+      <button class="modal-close" id="closeLoginModal">&times;</button>
+      <div class="modal-header">
+        <div class="modal-icon"><i class="fa-solid fa-user-astronaut"></i></div>
+        <h3>تسجيل الدخول إلى Art Store</h3>
+        <p class="modal-subtitle">سجل دخولك لمتابعة مشترياتك وتحميل المابات فوراً</p>
+      </div>
+      <div class="modal-body">
+        <form class="checkout-form" id="loginForm" onsubmit="handleLoginSubmit(event)">
+          <div class="form-group">
+            <label><i class="fa-solid fa-envelope"></i> البريد الإلكتروني أو اسم المستخدم</label>
+            <input type="text" id="usernameInput" placeholder="أدخل اسمك أو بريدك" required />
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-lock"></i> كلمة المرور</label>
+            <input type="password" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            <i class="fa-solid fa-right-to-bracket"></i> دخول
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Drawer / Modal -->
+  <div class="modal-overlay" id="cartModal">
+    <div class="modal-card modal-cart">
+      <button class="modal-close" id="closeCartModal">&times;</button>
+      <div class="modal-header">
+        <div class="modal-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+        <h3>سلة المشتريات</h3>
+      </div>
+      <div class="modal-body">
+        <div id="cartItemsList" class="cart-items-list">
+          <!-- Cart items rendered dynamically -->
+        </div>
+        <div class="cart-total-box" id="cartTotalBox" style="display: none;">
+          <div class="total-row">
+            <span>المجموع الكلي:</span>
+            <span class="total-price" id="cartTotalPrice">$0.00</span>
+          </div>
+          <button class="btn btn-primary btn-block" onclick="checkoutAllCart()">
+            <i class="fa-solid fa-credit-card"></i> إتمام الدفع والاستلام
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buy Now / Checkout Modal -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal-card">
+      <button class="modal-close" id="closeModal">&times;</button>
+      <div class="modal-header">
+        <div class="modal-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+        <h3 id="modalMapTitle">شراء الماب</h3>
+        <p id="modalMapPrice" class="modal-price"></p>
+      </div>
+      <div class="modal-body">
+        <p class="modal-note"><i class="fa-solid fa-circle-check text-neon"></i> يتم تسليم ملف الماب بصيغة <code>.rbxl</code> مباشرة بعد إتمام الطلب مع سكريبتات مفتوحة المصدر بالكامل.</p>
+        
+        <form class="checkout-form" id="checkoutForm" onsubmit="handleCheckout(event)">
+          <div class="form-group">
+            <label><i class="fa-solid fa-user"></i> اسم المستخدم في روبلوكس</label>
+            <input type="text" placeholder="مثال: RobloxDev_10" required />
+          </div>
+          <div class="form-group">
+            <label><i class="fa-brands fa-discord"></i> حساب الديسكورد (لتسليم الملف)</label>
+            <input type="text" placeholder="مثال: username#0000" required />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            <i class="fa-solid fa-lock"></i> تأكيد الطلب والاستلام الفوري
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toastMsg">تمت العملية بنجاح!</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-info">
+        <div class="logo">
+          <span class="logo-icon"><i class="fa-solid fa-palette"></i></span>
+          <span class="logo-text">ART<span class="highlight">STORE</span></span>
+        </div>
+        <p>المتجر الأول المتخصص في بيع مابات روبلوكس الاحترافية بأعلى جودة وتصميم نيون مستقبلي عصري.</p>
+      </div>
+      <div class="footer-links">
+        <h4>روابط سريعة</h4>
+        <a href="#hero">الرئيسية</a>
+        <a href="#maps">تصفح المابات</a>
+        <a href="#custom-orders">طلبات خاصة</a>
+      </div>
+      <div class="footer-security">
+        <h4>الأمان والموثوقية</h4>
+        <p><i class="fa-solid fa-shield-halved text-neon"></i> تسليم فوري لملفات .rbxl وضمان الجودة والبرمجة النظيفة بدون لاق.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 جميع الحقوق محفوظة لمتجر Art Store | استضافة Render</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
