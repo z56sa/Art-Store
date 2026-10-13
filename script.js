@@ -166,8 +166,8 @@ function renderMaps() {
           <p class="card-desc">${map.description}</p>
 
           <div class="card-sub-info">
-            <button class="btn-view-products" onclick="openMapProductsModal('${map.id}')">
-              <i class="fa-solid fa-boxes-stacked text-neon"></i> تصفح منتجات الماب (${productsCount})
+            <button class="btn btn-primary btn-block btn-open-modal-products" onclick="openMapProductsModal('${map.id}')">
+              <i class="fa-solid fa-boxes-stacked"></i> تصفح واشترِ منتجات الماب (${productsCount})
             </button>
           </div>
 
@@ -178,21 +178,6 @@ function renderMaps() {
             <div class="rating-score">
               <span>${(map.rating || 5).toFixed(1)}</span>
               <span class="rating-count">(${map.reviewCount || 100} تقييم)</span>
-            </div>
-          </div>
-
-          <div class="card-footer">
-            <div class="price-wrap">
-              <span class="price-label">سعر الماب</span>
-              <span class="price-val">$${Number(map.price).toFixed(2)}</span>
-            </div>
-            <div class="card-actions-row">
-              <button class="btn btn-cart-add" onclick="addMapToCart('${map.id}')" title="إضافة الماب للسلة">
-                <i class="fa-solid fa-cart-plus"></i>
-              </button>
-              <button class="btn btn-buy" onclick="openCheckoutSingle('${map.title}', ${map.price})">
-                <i class="fa-solid fa-bolt"></i> اشترِ الآن
-              </button>
             </div>
           </div>
         </div>
@@ -774,6 +759,34 @@ document.addEventListener("DOMContentLoaded", () => {
   // Navigation / Action Buttons
   const openAdminBtn = document.getElementById("openAdminBtn");
   if (openAdminBtn) openAdminBtn.addEventListener("click", openAdminPanel);
+
+  // Owner Secret Trigger (Click logo 3 times OR Ctrl+Shift+A)
+  let logoClickCount = 0;
+  let logoClickTimer = null;
+  const logo = document.getElementById("ownerSecretLogo");
+  if (logo) {
+    logo.style.cursor = "pointer";
+    logo.addEventListener("click", () => {
+      logoClickCount++;
+      clearTimeout(logoClickTimer);
+      if (logoClickCount >= 3) {
+        logoClickCount = 0;
+        openAdminPanel();
+      } else {
+        logoClickTimer = setTimeout(() => {
+          logoClickCount = 0;
+        }, 1200);
+      }
+    });
+  }
+
+  // Keyboard shortcut for Owner only: Ctrl + Shift + A
+  document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.shiftKey && (e.key === "A" || e.key === "a")) {
+      e.preventDefault();
+      openAdminPanel();
+    }
+  });
 
   const loginBtn = document.getElementById("loginBtn");
   if (loginBtn) loginBtn.addEventListener("click", openLoginModal);
