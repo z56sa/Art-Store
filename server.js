@@ -51,7 +51,6 @@ app.post('/api/send-otp', async (req, res) => {
       success: true,
       message: 'تم إرسال رمز التحقق بنجاح إلى هاتفك عبر رسالة نصية SMS',
       phone: cleanPhone,
-      code: code, // Returned so system displays pop-up/SMS simulation notification
       smsSentDirectly
     });
   } catch (error) {

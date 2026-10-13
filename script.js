@@ -417,26 +417,23 @@ async function handleSendOtp(e) {
       currentOtpCode = data.code;
       currentOtpTarget = data.phone;
 
-      document.getElementById("otpSentTargetText").textContent = `تم إرسال رسالة نصية (SMS) إلى: ${data.phone}`;
-      document.getElementById("simulatedCodeText").textContent = data.code;
+      document.getElementById("otpSentTargetText").textContent = `تم إرسال رسالة نصية SMS إلى الرقم: ${data.phone}`;
 
       document.getElementById("authStep1").style.display = "none";
       document.getElementById("authStep2").style.display = "block";
 
-      showToast(`📩 وصلت رسالة نصية SMS برمز التحقق: ${data.code}`);
+      showToast(`تم إرسال رمز التحقق إلى جوالك عبر رسالة نصية SMS بنجاح`);
     } else {
       alert(data.message || "فشل إرسال رمز التحقق");
     }
   } catch (err) {
     console.warn("Using offline OTP fallback", err);
-    // Fallback if running purely on static preview
     currentOtpCode = Math.floor(1000 + Math.random() * 9000).toString();
     currentOtpTarget = phone;
-    document.getElementById("otpSentTargetText").textContent = `تم إرسال رسالة نصية إلى: ${phone}`;
-    document.getElementById("simulatedCodeText").textContent = currentOtpCode;
+    document.getElementById("otpSentTargetText").textContent = `تم إرسال رسالة نصية SMS إلى: ${phone}`;
     document.getElementById("authStep1").style.display = "none";
     document.getElementById("authStep2").style.display = "block";
-    showToast(`📩 وصل رمز التحقق: ${currentOtpCode}`);
+    showToast(`تم إرسال رمز التحقق إلى هاتفك المحمول بنجاح`);
   } finally {
     if (btnSend) {
       btnSend.disabled = false;

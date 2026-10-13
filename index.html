@@ -126,20 +126,14 @@
       <!-- Step 2: Verification Code (OTP) -->
       <div id="authStep2" style="display: none;">
         <div class="modal-header">
-          <div class="modal-icon"><i class="fa-solid fa-message-sms"></i></div>
+          <div class="modal-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
           <h3>أدخل رمز التحقق (Code)</h3>
-          <p class="modal-subtitle" id="otpSentTargetText">تم إرسال كود التأكيد برسالة نصية إلى رقمك</p>
+          <p class="modal-subtitle" id="otpSentTargetText">تم إرسال رسالة نصية SMS إلى جوالك تحتوي على رمز التحقق</p>
         </div>
         <div class="modal-body">
-          <!-- Incoming SMS Notification Card -->
-          <div class="incoming-sms-card" id="incomingSmsCard">
-            <div class="sms-header">
-              <span><i class="fa-solid fa-comment-dots text-neon"></i> رسالة نصية واردة (SMS)</span>
-              <span class="sms-time">الآن</span>
-            </div>
-            <div class="sms-body">
-              <p>رمز التأكيد الخاص بك لمتجر Art Store هو: <strong class="sms-code-highlight" id="simulatedCodeText">----</strong></p>
-            </div>
+          <div class="sms-waiting-notice">
+            <i class="fa-solid fa-clock-rotate-left text-neon"></i>
+            <span>يرجى تفقد صندوق الرسائل النصية (SMS) في هاتفك وكتابة الرمز المرسل إليك.</span>
           </div>
 
           <form class="checkout-form" onsubmit="handleVerifyOtp(event)">
