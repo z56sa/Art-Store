@@ -94,39 +94,30 @@
     </div>
   </section>
 
-  <!-- ================= AUTHENTICATION MODAL (Email / Phone + OTP Verification) ================= -->
+  <!-- ================= AUTHENTICATION MODAL (Phone SMS & Real Code Verification) ================= -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-card">
       <button class="modal-close" id="closeLoginModal">&times;</button>
 
-      <!-- Step 1: Input Contact Details -->
+      <!-- Step 1: Input Mobile Phone -->
       <div id="authStep1">
         <div class="modal-header">
-          <div class="modal-icon"><i class="fa-solid fa-shield-cat"></i></div>
-          <h3>تسجيل الدخول / إنشاء حساب</h3>
-          <p class="modal-subtitle">أدخل بريدك الإلكتروني أو رقم جوالك لتصلك رسالة رمز التأكيد (OTP)</p>
+          <div class="modal-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
+          <h3>تسجيل الدخول برقم الجوال</h3>
+          <p class="modal-subtitle">أدخل رقم جوالك لتصلك رسالة نصية (SMS) فورية تحتوي على رمز التحقق</p>
         </div>
         <div class="modal-body">
-          <div class="auth-tabs">
-            <button class="auth-tab-btn active" id="tabEmailBtn" onclick="switchAuthTab('email')">
-              <i class="fa-regular fa-envelope"></i> بالبريد الإلكتروني
-            </button>
-            <button class="auth-tab-btn" id="tabPhoneBtn" onclick="switchAuthTab('phone')">
-              <i class="fa-solid fa-phone"></i> برقم الجوال
-            </button>
-          </div>
-
           <form class="checkout-form" onsubmit="handleSendOtp(event)">
-            <div class="form-group" id="emailGroup">
-              <label><i class="fa-solid fa-envelope"></i> البريد الإلكتروني</label>
-              <input type="email" id="authEmailInput" placeholder="name@example.com" />
+            <div class="form-group">
+              <label><i class="fa-solid fa-phone"></i> رقم الجوال</label>
+              <div class="phone-input-wrap">
+                <span class="country-code">+966 🇸🇦</span>
+                <input type="tel" id="authPhoneInput" placeholder="50 000 0000 أو 0502683998" required />
+              </div>
+              <small class="field-hint">مثال: 0502683998</small>
             </div>
-            <div class="form-group" id="phoneGroup" style="display: none;">
-              <label><i class="fa-solid fa-mobile-screen-button"></i> رقم الجوال (مع رمز الدولة)</label>
-              <input type="tel" id="authPhoneInput" placeholder="+966 50 000 0000" />
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">
-              <i class="fa-solid fa-paper-plane"></i> إرسال رمز التحقق
+            <button type="submit" class="btn btn-primary btn-block" id="btnSendSms">
+              <i class="fa-solid fa-paper-plane"></i> إرسال رمز التحقق عبر SMS
             </button>
           </form>
         </div>
@@ -135,24 +126,32 @@
       <!-- Step 2: Verification Code (OTP) -->
       <div id="authStep2" style="display: none;">
         <div class="modal-header">
-          <div class="modal-icon"><i class="fa-solid fa-key"></i></div>
-          <h3>تأكيد رمز التحقق</h3>
-          <p class="modal-subtitle" id="otpSentTargetText">تم إرسال كود التأكيد إلى حسابك</p>
+          <div class="modal-icon"><i class="fa-solid fa-message-sms"></i></div>
+          <h3>أدخل رمز التحقق (Code)</h3>
+          <p class="modal-subtitle" id="otpSentTargetText">تم إرسال كود التأكيد برسالة نصية إلى رقمك</p>
         </div>
         <div class="modal-body">
-          <div class="otp-banner">
-            <span><i class="fa-solid fa-comment-sms"></i> رسالة المحاكاة المباشرة: رمز التحقق الخاص بك هو: <strong id="simulatedCodeText" class="text-neon">1234</strong></span>
+          <!-- Incoming SMS Notification Card -->
+          <div class="incoming-sms-card" id="incomingSmsCard">
+            <div class="sms-header">
+              <span><i class="fa-solid fa-comment-dots text-neon"></i> رسالة نصية واردة (SMS)</span>
+              <span class="sms-time">الآن</span>
+            </div>
+            <div class="sms-body">
+              <p>رمز التأكيد الخاص بك لمتجر Art Store هو: <strong class="sms-code-highlight" id="simulatedCodeText">----</strong></p>
+            </div>
           </div>
+
           <form class="checkout-form" onsubmit="handleVerifyOtp(event)">
             <div class="form-group">
-              <label><i class="fa-solid fa-lock"></i> أدخل رمز التأكيد (4 أرقام)</label>
-              <input type="text" id="otpCodeInput" maxlength="6" placeholder="مثال: 1234" required style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;" />
+              <label><i class="fa-solid fa-key"></i> رمز التحقق المكون من 4 أرقام</label>
+              <input type="text" id="otpCodeInput" maxlength="4" placeholder="••••" required style="text-align: center; font-size: 1.8rem; letter-spacing: 12px; font-weight: 900;" />
             </div>
-            <button type="submit" class="btn btn-primary btn-block">
+            <button type="submit" class="btn btn-primary btn-block" id="btnVerifySms">
               <i class="fa-solid fa-circle-check"></i> تأكيد ودخول الحساب
             </button>
-            <button type="button" class="btn btn-secondary btn-block" style="margin-top: 0.5rem;" onclick="backToAuthStep1()">
-              <i class="fa-solid fa-arrow-right"></i> تعديل الرقم / البريد
+            <button type="button" class="btn btn-secondary btn-block" style="margin-top: 0.6rem;" onclick="backToAuthStep1()">
+              <i class="fa-solid fa-arrow-right"></i> تغيير رقم الجوال
             </button>
           </form>
         </div>

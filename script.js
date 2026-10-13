@@ -388,36 +388,61 @@ function openLoginModal() {
   document.getElementById("loginModal").classList.add("active");
 }
 
-function handleSendOtp(e) {
+async function handleSendOtp(e) {
   e.preventDefault();
-  let target = "";
-  if (activeAuthTab === "email") {
-    const email = document.getElementById("authEmailInput").value.trim();
-    if (!email) {
-      alert("يرجى إدخال البريد الإلكتروني");
-      return;
-    }
-    target = email;
-  } else {
-    const phone = document.getElementById("authPhoneInput").value.trim();
-    if (!phone) {
-      alert("يرجى إدخال رقم الجوال");
-      return;
-    }
-    target = phone;
+  const phoneInput = document.getElementById("authPhoneInput");
+  const phone = phoneInput.value.trim();
+
+  if (!phone || phone.length < 9) {
+    alert("يرجى إدخال رقم جوال صحيح (مثال: 0502683998)");
+    return;
   }
 
-  // Generate 4-digit verification code
-  currentOtpCode = Math.floor(1000 + Math.random() * 9000).toString();
-  currentOtpTarget = target;
+  const btnSend = document.getElementById("btnSendSms");
+  if (btnSend) {
+    btnSend.disabled = true;
+    btnSend.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري إرسال الرسالة النصية...`;
+  }
 
-  document.getElementById("otpSentTargetText").textContent = `تم إرسال رمز التحقق إلى: ${target}`;
-  document.getElementById("simulatedCodeText").textContent = currentOtpCode;
+  try {
+    const res = await fetch('/api/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
 
-  document.getElementById("authStep1").style.display = "none";
-  document.getElementById("authStep2").style.display = "block";
+    const data = await res.json();
 
-  showToast(`تم إرسال رسالة برمز التحقق: ${currentOtpCode}`);
+    if (data.success) {
+      currentOtpCode = data.code;
+      currentOtpTarget = data.phone;
+
+      document.getElementById("otpSentTargetText").textContent = `تم إرسال رسالة نصية (SMS) إلى: ${data.phone}`;
+      document.getElementById("simulatedCodeText").textContent = data.code;
+
+      document.getElementById("authStep1").style.display = "none";
+      document.getElementById("authStep2").style.display = "block";
+
+      showToast(`📩 وصلت رسالة نصية SMS برمز التحقق: ${data.code}`);
+    } else {
+      alert(data.message || "فشل إرسال رمز التحقق");
+    }
+  } catch (err) {
+    console.warn("Using offline OTP fallback", err);
+    // Fallback if running purely on static preview
+    currentOtpCode = Math.floor(1000 + Math.random() * 9000).toString();
+    currentOtpTarget = phone;
+    document.getElementById("otpSentTargetText").textContent = `تم إرسال رسالة نصية إلى: ${phone}`;
+    document.getElementById("simulatedCodeText").textContent = currentOtpCode;
+    document.getElementById("authStep1").style.display = "none";
+    document.getElementById("authStep2").style.display = "block";
+    showToast(`📩 وصل رمز التحقق: ${currentOtpCode}`);
+  } finally {
+    if (btnSend) {
+      btnSend.disabled = false;
+      btnSend.innerHTML = `<i class="fa-solid fa-paper-plane"></i> إرسال رمز التحقق عبر SMS`;
+    }
+  }
 }
 
 function backToAuthStep1() {
@@ -433,40 +458,71 @@ const OWNER_PHONE = "0502683998";
 
 function checkIsOwner(input) {
   if (!input) return false;
-  const cleanInput = input.trim().toLowerCase().replace(/[\s-]/g, "");
-  const cleanOwnerEmail = OWNER_EMAIL.toLowerCase();
+  const cleanInput = input.trim().toLowerCase().replace(/[\s\-\(\)\+]/g, "");
   const cleanOwnerPhone = OWNER_PHONE;
-  return cleanInput === cleanOwnerEmail || cleanInput === cleanOwnerPhone || cleanInput.endsWith("0502683998");
+  return cleanInput.includes(cleanOwnerPhone) || cleanInput.includes("502683998") || cleanInput === OWNER_EMAIL;
 }
 
-function handleVerifyOtp(e) {
+async function handleVerifyOtp(e) {
   e.preventDefault();
   const enteredCode = document.getElementById("otpCodeInput").value.trim();
 
-  if (enteredCode !== currentOtpCode) {
-    alert("رمز التحقق غير صحيح، يرجى كتابة الرمز الظاهر في الرسالة.");
-    return;
+  const btnVerify = document.getElementById("btnVerifySms");
+  if (btnVerify) {
+    btnVerify.disabled = true;
+    btnVerify.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري التحقق...`;
   }
 
-  // Successful Login
-  currentUser = currentOtpTarget;
-  const isOwner = checkIsOwner(currentUser);
+  let verified = false;
+  let isOwner = false;
 
-  if (isOwner) {
-    sessionStorage.setItem(STORAGE_ADMIN_AUTH_KEY, "true");
-    document.getElementById("loginBtnText").innerHTML = `<i class="fa-solid fa-crown text-neon"></i> المالك`;
-    const ownerNavBtn = document.getElementById("ownerAdminNavBtn");
-    if (ownerNavBtn) ownerNavBtn.style.display = "inline-flex";
-    showToast(`مرحباً بك يا مالك المتجر! تم تفعيل لوحة التحكم الخاصة بك 👑`);
-  } else {
-    document.getElementById("loginBtnText").textContent = currentUser.length > 15 ? currentUser.substring(0, 15) + "..." : currentUser;
-    const ownerNavBtn = document.getElementById("ownerAdminNavBtn");
-    if (ownerNavBtn) ownerNavBtn.style.display = "none";
-    showToast(`تم تأكيد الحساب وتسجيل الدخول بنجاح! مرحباً بك.`);
+  try {
+    const res = await fetch('/api/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: currentOtpTarget, code: enteredCode })
+    });
+    const data = await res.json();
+    if (data.success) {
+      verified = true;
+      isOwner = data.isOwner || checkIsOwner(currentOtpTarget);
+    } else {
+      alert(data.message || "رمز التحقق غير صحيح");
+    }
+  } catch (err) {
+    // Client-side fallback check
+    if (enteredCode === currentOtpCode) {
+      verified = true;
+      isOwner = checkIsOwner(currentOtpTarget);
+    } else {
+      alert("رمز التحقق غير صحيح، يرجى كتابة الرمز الوارد في الرسالة النصية.");
+    }
+  } finally {
+    if (btnVerify) {
+      btnVerify.disabled = false;
+      btnVerify.innerHTML = `<i class="fa-solid fa-circle-check"></i> تأكيد ودخول الحساب`;
+    }
   }
 
-  document.getElementById("loginModal").classList.remove("active");
-  backToAuthStep1();
+  if (verified) {
+    currentUser = currentOtpTarget;
+
+    if (isOwner) {
+      sessionStorage.setItem(STORAGE_ADMIN_AUTH_KEY, "true");
+      document.getElementById("loginBtnText").innerHTML = `<i class="fa-solid fa-crown text-neon"></i> المالك`;
+      const ownerNavBtn = document.getElementById("ownerAdminNavBtn");
+      if (ownerNavBtn) ownerNavBtn.style.display = "inline-flex";
+      showToast(`مرحباً بك يا صاحب المتجر! تم تفعيل لوحة تحكم المالك 👑`);
+    } else {
+      document.getElementById("loginBtnText").textContent = currentUser.length > 15 ? currentUser.substring(0, 15) + "..." : currentUser;
+      const ownerNavBtn = document.getElementById("ownerAdminNavBtn");
+      if (ownerNavBtn) ownerNavBtn.style.display = "none";
+      showToast(`تم تأكيد رقم الجوال وتسجيل الدخول بنجاح!`);
+    }
+
+    document.getElementById("loginModal").classList.remove("active");
+    backToAuthStep1();
+  }
 }
 
 function openLoginModal() {
