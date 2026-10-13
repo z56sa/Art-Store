@@ -1,10 +1,19 @@
-// ==========================================
-// Art Store - Roblox Maps Store
-// Real in-game thumbnails for the 5 maps
-// Full functional Cart & Login System
-// ==========================================
+// ========================================================
+// Art Store - Full Featured Store Engine
+// Includes:
+// 1. Interactive Maps & Sub-Products System
+// 2. Comprehensive Admin Dashboard (Maps + Products CRUD)
+// 3. Email & Phone Login with Verification Code (OTP)
+// 4. Cart & Instant Checkout System
+// 5. Persistent Local Storage
+// ========================================================
 
-const mapsData = [
+const STORAGE_MAPS_KEY = "artstore_maps_data_v1";
+const STORAGE_ADMIN_AUTH_KEY = "artstore_admin_authenticated";
+const ADMIN_SECRET_PIN = "admin123";
+
+// Initial Default Maps Data with in-game products
+const defaultMapsData = [
   {
     id: "blox-fruits",
     title: "ماب بلوكس فروت (Blox Fruits)",
@@ -15,7 +24,12 @@ const mapsData = [
     priceDisplay: "$29.99",
     image: "assets/images/blox-fruits.png",
     fallbackImage: "https://static.wikia.nocookie.net/roblox-blox-piece/images/f/f0/Blox_Fruits_Wiki_Logo.png",
-    description: "عالم بحار وجزر متكامل مع نظام فواكه شيطانية وسحر وسيوف، وحوش ورؤساء (Bosses)، ونظام لفل وتطوير شخصيات مفتوح المصدر بالكامل."
+    description: "عالم بحار وجزر متكامل مع نظام فواكه شيطانية وسحر وسيوف، وحوش ورؤساء (Bosses)، ونظام لفل وتطوير شخصيات مفتوح المصدر بالكامل.",
+    products: [
+      { id: "bf-p1", title: "حزمة الفواكه الأسطورية (Dragon & Kitsune)", price: 9.99, desc: "سكريبت كامل مع مجسمات الفواكه النادرة والتأثيرات الصوتية والبصرية." },
+      { id: "bf-p2", title: "نظام قتال السيوف المزدوج (CDK Sword Script)", price: 6.50, desc: "أنيميشن هجومي متقدم مع مهارات Z و X مخصصة." },
+      { id: "bf-p3", title: "حزمة جزر البحر الثالث (Sea 3 Islands Map)", price: 14.99, desc: "بناء معماري ثلاثي الأبعاد عالي الجودة لـ 4 جزر حصرية." }
+    ]
   },
   {
     id: "egg-simulator",
@@ -27,7 +41,12 @@ const mapsData = [
     priceDisplay: "$19.99",
     image: "assets/images/egg-simulator.png",
     fallbackImage: "https://static.wikia.nocookie.net/pet-simulator/images/2/22/PS99Icon.png",
-    description: "محاكي البيض الشهير مع نظام تفقيس نادر، حيوانات أليفة مميزة (Pets) ثلاثية الأبعاد، مناطق وجزر طائرة ونظام اقتصاد تفاعلي ممتع."
+    description: "محاكي البيض الشهير مع نظام تفقيس نادر، حيوانات أليفة مميزة (Pets) ثلاثية الأبعاد، مناطق وجزر طائرة ونظام اقتصاد تفاعلي ممتع.",
+    products: [
+      { id: "egg-p1", title: "حزمة 15 حيوان أليف هيوج (Huge Pets Pack)", price: 7.99, desc: "موديلات ثلاثية الأبعاد خفيفة جاهزة للتفقيس مع تأثيرات هالة مشعة." },
+      { id: "egg-p2", title: "سكريبت آلة الترقية والدمج الذهبي (Gold Craft Machine)", price: 4.99, desc: "واجهة UI عصرية ونظام دمج سلس بنقرة واحدة." },
+      { id: "egg-p3", title: "خريطة العالم المتجمد والمستقبلي (Sci-Fi Zones)", price: 8.50, desc: "منطقتان كاملتان للتعدين وتجميع العملات." }
+    ]
   },
   {
     id: "mm2",
@@ -39,7 +58,12 @@ const mapsData = [
     priceDisplay: "$24.99",
     image: "assets/images/mm2.png",
     fallbackImage: "https://static.wikia.nocookie.net/murder-mystery-2/images/9/9f/Murder-Mystery-2.png",
-    description: "خريطة الغموض الشهيرة MM2 مع نظام كامل للقاتل والشريف والأبرياء، سكينات سكاكين وأسلحة حصرية، خرائط متنوعة وجولات تفاعلية."
+    description: "خريطة الغموض الشهيرة MM2 مع نظام كامل للقاتل والشريف والأبرياء، سكينات سكاكين وأسلحة حصرية، خرائط متنوعة وجولات تفاعلية.",
+    products: [
+      { id: "mm2-p1", title: "حزمة سكاكين النيون المتوهجة (Neon Chroma Knives)", price: 8.99, desc: "10 سكينات ملونة بأنيميشن دوران وسحب رائع." },
+      { id: "mm2-p2", title: "خريطة الفندق المهجور (Haunted Hotel Arena)", price: 9.50, desc: "خريطة تفاعلية بنظام أبواب وإضاءة سينمائية مظلمة." },
+      { id: "mm2-p3", title: "صندوق أسلحة عشوائي مع متجر كامل (Crate UI)", price: 5.99, desc: "نظام فتح صناديق الحظ مع احتمالات ندرة." }
+    ]
   },
   {
     id: "jailbreak",
@@ -51,7 +75,12 @@ const mapsData = [
     priceDisplay: "$27.50",
     image: "assets/images/jailbreak.png",
     fallbackImage: "https://assets.jailbreakchangelogs.com/assets/logos/JBCL_Long_Transparent.png",
-    description: "مدينة واقعية واسعة تحتوي على سجن أمني مشدد، بنك، متجر مجوهرات ومتحف قابل للسرقة مع مركبات وطائرات قابلة للقيادة ونظام شرطة ولصوص."
+    description: "مدينة واقعية واسعة تحتوي على سجن أمني مشدد، بنك، متجر مجوهرات ومتحف قابل للسرقة مع مركبات وطائرات قابلة للقيادة ونظام شرطة ولصوص.",
+    products: [
+      { id: "jb-p1", title: "نظام سرقة البنك بالليزر (Bank Laser Heist System)", price: 11.99, desc: "ليزر متحرك وإنذار تلقائي ومكافأة نقدية عند الهروب." },
+      { id: "jb-p2", title: "حزمة سيارات سباق وطائرات هليكوبتر قابلة للقيادة", price: 8.99, desc: "مركبات بمحرك Chassis متطور متوافق مع الموبايل والكمبيوتر." },
+      { id: "jb-p3", title: "مبنى قسم الشرطة وسجن متكامل مع كاميرات مراقبة", price: 12.00, desc: "بناء فائق الواقعية مع بطاقات دخول وزنازين." }
+    ]
   },
   {
     id: "adopt-me",
@@ -63,29 +92,60 @@ const mapsData = [
     priceDisplay: "$25.00",
     image: "assets/images/adopt-me.png",
     fallbackImage: "https://static.wikia.nocookie.net/logopedia/images/0/0e/Adopt_Me%21_%28Alt%29.png",
-    description: "عالم جزيرة التبني الممتعة والمبهجة؛ بيوت قابلة للتأثيث، حيوانات أليفة نادرة وتربية، حضانة، مركبات وألعاب وأدوار عائلية رائعة."
+    description: "عالم جزيرة التبني الممتعة والمبهجة؛ بيوت قابلة للتأثيث، حيوانات أليفة نادرة وتربية، حضانة، مركبات وألعاب وأدوار عائلية رائعة.",
+    products: [
+      { id: "am-p1", title: "نظام إطعام ورعاية الحيوانات (Pet Care & Sleep Script)", price: 9.99, desc: "أشرطة تلبية احتياجات الحيوان مع مكافآت عملات." },
+      { id: "am-p2", title: "منزل قصر فاخر قابل للبناء والتأثيث (Mansion System)", price: 10.50, desc: "نظام وضع الأثاث وسحب وتحريك العناصر داخلياً." },
+      { id: "am-p3", title: "حزمة ملابس واكسسوارات الحيوانات (Pet Wearables)", price: 5.50, desc: "قبعات، نظارات وأجنحة تفاعلية تركب على الحيوانات." }
+    ]
   }
 ];
 
-// State management
+// Load Maps from localStorage or use defaults
+function getStoredMaps() {
+  const data = localStorage.getItem(STORAGE_MAPS_KEY);
+  if (data) {
+    try {
+      return JSON.parse(data);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  localStorage.setItem(STORAGE_MAPS_KEY, JSON.stringify(defaultMapsData));
+  return defaultMapsData;
+}
+
+function saveStoredMaps(maps) {
+  localStorage.setItem(STORAGE_MAPS_KEY, JSON.stringify(maps));
+}
+
+// App State
+let mapsList = getStoredMaps();
 let cart = [];
 let currentUser = null;
+let currentOtpCode = null;
+let currentOtpTarget = "";
+let selectedMapForProducts = null;
 
-// Render Maps to Grid
+// ================= RENDER MAPS =================
 function renderMaps() {
   const grid = document.getElementById("mapsGrid");
+  const badge = document.getElementById("mapsCountBadge");
   if (!grid) return;
 
-  grid.innerHTML = mapsData.map(map => {
-    const fullStars = Math.floor(map.rating);
+  mapsList = getStoredMaps();
+  if (badge) {
+    badge.innerHTML = `<i class="fa-solid fa-check-circle"></i> ${mapsList.length} مابات متوفرة`;
+  }
+
+  grid.innerHTML = mapsList.map(map => {
+    const fullStars = Math.floor(map.rating || 5);
     let starsHtml = "";
     for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
-        starsHtml += '<i class="fa-solid fa-star"></i>';
-      } else {
-        starsHtml += '<i class="fa-regular fa-star"></i>';
-      }
+      starsHtml += (i < fullStars) ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
     }
+
+    const productsCount = (map.products && map.products.length) || 0;
 
     return `
       <article class="map-card" data-id="${map.id}">
@@ -95,7 +155,7 @@ function renderMaps() {
             alt="${map.title}" 
             class="card-img" 
             loading="lazy" 
-            onerror="this.onerror=null;this.src='${map.fallbackImage}';" 
+            onerror="this.onerror=null;this.src='${map.fallbackImage || map.image}';" 
           />
           <span class="card-tag">${map.category}</span>
           <span class="card-status"><span class="card-status-dot"></span> متوفر للتحميل</span>
@@ -105,26 +165,32 @@ function renderMaps() {
           <h3 class="card-title">${map.title}</h3>
           <p class="card-desc">${map.description}</p>
 
+          <div class="card-sub-info">
+            <button class="btn-view-products" onclick="openMapProductsModal('${map.id}')">
+              <i class="fa-solid fa-boxes-stacked text-neon"></i> تصفح منتجات الماب (${productsCount})
+            </button>
+          </div>
+
           <div class="card-rating-wrap">
             <div class="stars-list">
               ${starsHtml}
             </div>
             <div class="rating-score">
-              <span>${map.rating.toFixed(1)}</span>
-              <span class="rating-count">(${map.reviewCount} تقييم)</span>
+              <span>${(map.rating || 5).toFixed(1)}</span>
+              <span class="rating-count">(${map.reviewCount || 100} تقييم)</span>
             </div>
           </div>
 
           <div class="card-footer">
             <div class="price-wrap">
-              <span class="price-label">السعر</span>
-              <span class="price-val">${map.priceDisplay}</span>
+              <span class="price-label">سعر الماب</span>
+              <span class="price-val">$${Number(map.price).toFixed(2)}</span>
             </div>
             <div class="card-actions-row">
-              <button class="btn btn-cart-add" onclick="addToCart('${map.id}')" title="إضافة للسلة">
+              <button class="btn btn-cart-add" onclick="addMapToCart('${map.id}')" title="إضافة الماب للسلة">
                 <i class="fa-solid fa-cart-plus"></i>
               </button>
-              <button class="btn btn-buy" onclick="openCheckout('${map.id}')">
+              <button class="btn btn-buy" onclick="openCheckoutSingle('${map.title}', ${map.price})">
                 <i class="fa-solid fa-bolt"></i> اشترِ الآن
               </button>
             </div>
@@ -135,44 +201,92 @@ function renderMaps() {
   }).join('');
 }
 
-// Add Item to Cart
-function addToCart(mapId) {
-  const map = mapsData.find(m => m.id === mapId);
+// ================= INNER MAP PRODUCTS MODAL =================
+function openMapProductsModal(mapId) {
+  mapsList = getStoredMaps();
+  const map = mapsList.find(m => m.id === mapId);
   if (!map) return;
 
-  const exists = cart.find(item => item.id === mapId);
-  if (exists) {
-    showToast(`"${map.title}" موجود بالفعل في سلتك!`);
+  selectedMapForProducts = map;
+  document.getElementById("modalProductsMapTitle").textContent = `منتجات وقطع: ${map.title}`;
+  document.getElementById("modalProductsMapDesc").textContent = `العناصر، السكريبتات، والإضافات الحصرية المتاحة للشراء الفوري داخل هذا الماب.`;
+
+  const container = document.getElementById("innerProductsGrid");
+  const products = map.products || [];
+
+  if (products.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state-box">
+        <i class="fa-solid fa-box-open"></i>
+        <p>لا توجد منتجات إضافية مضافة لهذا الماب حالياً.</p>
+        <span>يمكن للإدارة إضافة عناصر من لوحة التحكم.</span>
+      </div>
+    `;
   } else {
-    cart.push(map);
-    updateCartUI();
-    showToast(`تمت إضافة "${map.title}" إلى السلة 🛒`);
+    container.innerHTML = products.map(prod => `
+      <div class="inner-product-card">
+        <div class="inner-prod-header">
+          <h4><i class="fa-solid fa-cube text-neon"></i> ${prod.title}</h4>
+          <span class="inner-prod-price">$${Number(prod.price).toFixed(2)}</span>
+        </div>
+        <p class="inner-prod-desc">${prod.desc || 'عنصر احترافي متوافق مع الماب'}</p>
+        <div class="inner-prod-actions">
+          <button class="btn btn-primary btn-sm" onclick="addProductToCart('${map.title}', '${prod.title}', ${prod.price})">
+            <i class="fa-solid fa-cart-plus"></i> أضف للسلة
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="openCheckoutSingle('${prod.title} (${map.title})', ${prod.price})">
+            <i class="fa-solid fa-bolt"></i> شراء سريع
+          </button>
+        </div>
+      </div>
+    `).join('');
   }
+
+  document.getElementById("mapProductsModal").classList.add("active");
 }
 
-// Remove from Cart
-function removeFromCart(mapId) {
-  cart = cart.filter(item => item.id !== mapId);
-  updateCartUI();
+// ================= CART SYSTEM =================
+function addMapToCart(mapId) {
+  const map = mapsList.find(m => m.id === mapId);
+  if (!map) return;
+
+  cart.push({
+    id: `map-${map.id}-${Date.now()}`,
+    title: `ماب: ${map.title}`,
+    price: Number(map.price),
+    image: map.image,
+    fallbackImage: map.fallbackImage
+  });
+  updateCartBadge();
+  showToast(`تمت إضافة "${map.title}" إلى السلة 🛒`);
+}
+
+function addProductToCart(mapTitle, prodTitle, price) {
+  cart.push({
+    id: `prod-${Date.now()}-${Math.random()}`,
+    title: `${prodTitle} (${mapTitle})`,
+    price: Number(price),
+    image: "assets/images/blox-fruits.png"
+  });
+  updateCartBadge();
+  showToast(`تمت إضافة "${prodTitle}" إلى السلة 🛒`);
+}
+
+function removeFromCart(cartItemId) {
+  cart = cart.filter(item => item.id !== cartItemId);
+  updateCartBadge();
   renderCartModal();
   showToast("تم حذف العنصر من السلة");
 }
 
-// Update Cart Badge
-function updateCartUI() {
-  const cartBadge = document.getElementById("cartCount");
-  if (cartBadge) {
-    cartBadge.textContent = cart.length;
-  }
+function updateCartBadge() {
+  const badge = document.getElementById("cartCount");
+  if (badge) badge.textContent = cart.length;
 }
 
-// Open and Render Cart Modal
 function openCartModal() {
   renderCartModal();
-  const cartModal = document.getElementById("cartModal");
-  if (cartModal) {
-    cartModal.classList.add("active");
-  }
+  document.getElementById("cartModal").classList.add("active");
 }
 
 function renderCartModal() {
@@ -187,7 +301,7 @@ function renderCartModal() {
       <div class="empty-cart-msg">
         <i class="fa-solid fa-basket-shopping"></i>
         <p>السلة فارغة حالياً</p>
-        <span>تصفح المابات وأضف ما يعجبك إلى سلتك!</span>
+        <span>تصفح المابات والمنتجات وأضف ما يعجبك!</span>
       </div>
     `;
     if (totalBox) totalBox.style.display = "none";
@@ -198,10 +312,9 @@ function renderCartModal() {
 
   container.innerHTML = cart.map(item => `
     <div class="cart-item-row">
-      <img src="${item.image}" alt="${item.title}" class="cart-item-img" onerror="this.onerror=null;this.src='${item.fallbackImage}';" />
       <div class="cart-item-details">
         <h4>${item.title}</h4>
-        <span class="cart-item-price">${item.priceDisplay}</span>
+        <span class="cart-item-price">$${item.price.toFixed(2)}</span>
       </div>
       <button class="btn-remove-item" onclick="removeFromCart('${item.id}')" title="حذف">
         <i class="fa-solid fa-trash-can"></i>
@@ -215,133 +328,474 @@ function renderCartModal() {
   }
 }
 
-// Checkout All Cart Items
 function checkoutAllCart() {
   if (cart.length === 0) return;
-  const cartModal = document.getElementById("cartModal");
-  if (cartModal) cartModal.classList.remove("active");
-
+  document.getElementById("cartModal").classList.remove("active");
   const total = cart.reduce((sum, item) => sum + item.price, 0);
   const count = cart.length;
   cart = [];
-  updateCartUI();
-
-  showToast(`تم شراء ${count} مابات بنجاح بقيمة $${total.toFixed(2)}! شكراً لك.`);
+  updateCartBadge();
+  showToast(`تم تأكيد شراء ${count} عناصر بقيمة $${total.toFixed(2)} بنجاح!`);
 }
 
-// Open Checkout Modal for a single map
-function openCheckout(mapId) {
-  const map = mapsData.find(m => m.id === mapId);
-  if (!map) return;
-
-  const modal = document.getElementById("checkoutModal");
-  const modalTitle = document.getElementById("modalMapTitle");
-  const modalPrice = document.getElementById("modalMapPrice");
-
-  modalTitle.textContent = map.title;
-  modalPrice.textContent = `${map.priceDisplay} فقط`;
-
-  modal.classList.add("active");
+function openCheckoutSingle(title, price) {
+  document.getElementById("modalMapTitle").textContent = title;
+  document.getElementById("modalMapPrice").textContent = `$${Number(price).toFixed(2)} فقط`;
+  document.getElementById("checkoutModal").classList.add("active");
 }
 
-// Handle Form Submission for Single Map Checkout
 function handleCheckout(e) {
   e.preventDefault();
-  const modal = document.getElementById("checkoutModal");
-  if (modal) modal.classList.remove("active");
-
-  showToast("تم تأكيد طلبك بنجاح! سيتم إرسال ملف الماب لك فوراً.");
+  document.getElementById("checkoutModal").classList.remove("active");
+  showToast("تم استلام طلبك بنجاح! سيتم تسليم الملف عبر الديسكورد فوراً.");
 }
 
-// Login functionality
+// ================= AUTHENTICATION WITH EMAIL / PHONE + OTP =================
+let activeAuthTab = "email";
+
+function switchAuthTab(type) {
+  activeAuthTab = type;
+  const tabEmail = document.getElementById("tabEmailBtn");
+  const tabPhone = document.getElementById("tabPhoneBtn");
+  const emailGroup = document.getElementById("emailGroup");
+  const phoneGroup = document.getElementById("phoneGroup");
+
+  if (type === "email") {
+    tabEmail.classList.add("active");
+    tabPhone.classList.remove("active");
+    emailGroup.style.display = "block";
+    phoneGroup.style.display = "none";
+  } else {
+    tabPhone.classList.add("active");
+    tabEmail.classList.remove("active");
+    phoneGroup.style.display = "block";
+    emailGroup.style.display = "none";
+  }
+}
+
 function openLoginModal() {
   if (currentUser) {
-    // If logged in, clicking will log out
-    if (confirm(`أنت مسجل باسم "${currentUser}". هل تود تسجيل الخروج؟`)) {
+    if (confirm(`أنت مسجل حالياً بحساب "${currentUser}". هل تريد تسجيل الخروج؟`)) {
       currentUser = null;
       document.getElementById("loginBtnText").textContent = "تسجيل الدخول";
       showToast("تم تسجيل الخروج بنجاح.");
     }
     return;
   }
-  const modal = document.getElementById("loginModal");
-  if (modal) modal.classList.add("active");
+
+  backToAuthStep1();
+  document.getElementById("loginModal").classList.add("active");
 }
 
-function handleLoginSubmit(e) {
+function handleSendOtp(e) {
   e.preventDefault();
-  const input = document.getElementById("usernameInput");
-  const username = input.value.trim() || "مستخدم Art Store";
-  currentUser = username;
+  let target = "";
+  if (activeAuthTab === "email") {
+    const email = document.getElementById("authEmailInput").value.trim();
+    if (!email) {
+      alert("يرجى إدخال البريد الإلكتروني");
+      return;
+    }
+    target = email;
+  } else {
+    const phone = document.getElementById("authPhoneInput").value.trim();
+    if (!phone) {
+      alert("يرجى إدخال رقم الجوال");
+      return;
+    }
+    target = phone;
+  }
 
-  document.getElementById("loginBtnText").textContent = currentUser;
-  const modal = document.getElementById("loginModal");
-  if (modal) modal.classList.remove("active");
+  // Generate 4-digit verification code
+  currentOtpCode = Math.floor(1000 + Math.random() * 9000).toString();
+  currentOtpTarget = target;
 
-  input.value = "";
-  showToast(`مرحباً بك يا ${currentUser}! تم تسجيل الدخول بنجاح.`);
+  document.getElementById("otpSentTargetText").textContent = `تم إرسال رمز التحقق إلى: ${target}`;
+  document.getElementById("simulatedCodeText").textContent = currentOtpCode;
+
+  document.getElementById("authStep1").style.display = "none";
+  document.getElementById("authStep2").style.display = "block";
+
+  showToast(`تم إرسال رسالة برمز التحقق: ${currentOtpCode}`);
+}
+
+function backToAuthStep1() {
+  document.getElementById("authStep1").style.display = "block";
+  document.getElementById("authStep2").style.display = "none";
+  const otpInput = document.getElementById("otpCodeInput");
+  if (otpInput) otpInput.value = "";
+}
+
+function handleVerifyOtp(e) {
+  e.preventDefault();
+  const enteredCode = document.getElementById("otpCodeInput").value.trim();
+
+  if (enteredCode !== currentOtpCode) {
+    alert("رمز التحقق غير صحيح، يرجى كتابة الرمز الظاهر في الرسالة.");
+    return;
+  }
+
+  // Successful Login
+  currentUser = currentOtpTarget;
+  document.getElementById("loginBtnText").textContent = currentUser.length > 15 ? currentUser.substring(0, 15) + "..." : currentUser;
+  document.getElementById("loginModal").classList.remove("active");
+  backToAuthStep1();
+  showToast(`تم تأكيد الحساب وتسجيل الدخول بنجاح! مرحباً بك.`);
+}
+
+// ================= ADMIN DASHBOARD (فقط للإدارة) =================
+function openAdminPanel() {
+  const isAuthed = sessionStorage.getItem(STORAGE_ADMIN_AUTH_KEY) === "true";
+  const lock = document.getElementById("adminLockScreen");
+  const content = document.getElementById("adminContentScreen");
+
+  if (isAuthed) {
+    lock.style.display = "none";
+    content.style.display = "block";
+    initAdminView();
+  } else {
+    lock.style.display = "block";
+    content.style.display = "none";
+  }
+
+  document.getElementById("adminModal").classList.add("active");
+}
+
+function handleAdminLogin(e) {
+  e.preventDefault();
+  const pass = document.getElementById("adminPassInput").value.trim();
+
+  if (pass === ADMIN_SECRET_PIN) {
+    sessionStorage.setItem(STORAGE_ADMIN_AUTH_KEY, "true");
+    document.getElementById("adminLockScreen").style.display = "none";
+    document.getElementById("adminContentScreen").style.display = "block";
+    document.getElementById("adminPassInput").value = "";
+    initAdminView();
+    showToast("مرحباً بك في لوحة تحكم الإدارة!");
+  } else {
+    alert("كلمة المرور غير صحيحة! الدخول مخصص للإدارة فقط.");
+  }
+}
+
+function adminLogout() {
+  sessionStorage.removeItem(STORAGE_ADMIN_AUTH_KEY);
+  document.getElementById("adminLockScreen").style.display = "block";
+  document.getElementById("adminContentScreen").style.display = "none";
+  showToast("تم تسجيل الخروج من لوحة الإدارة.");
+}
+
+function initAdminView() {
+  renderAdminMapsTable();
+  populateAdminMapSelect();
+}
+
+function switchAdminTab(tab) {
+  const btnMaps = document.getElementById("tabAdminMaps");
+  const btnProducts = document.getElementById("tabAdminProducts");
+  const secMaps = document.getElementById("adminMapsSection");
+  const secProducts = document.getElementById("adminProductsSection");
+
+  if (tab === "maps") {
+    btnMaps.classList.add("active");
+    btnProducts.classList.remove("active");
+    secMaps.style.display = "block";
+    secProducts.style.display = "none";
+    renderAdminMapsTable();
+  } else {
+    btnProducts.classList.add("active");
+    btnMaps.classList.remove("active");
+    secProducts.style.display = "block";
+    secMaps.style.display = "none";
+    populateAdminMapSelect();
+    renderAdminProductsList();
+  }
+}
+
+// Admin: Manage Maps Table
+function renderAdminMapsTable() {
+  mapsList = getStoredMaps();
+  const tbody = document.getElementById("adminMapsTableBody");
+  if (!tbody) return;
+
+  tbody.innerHTML = mapsList.map(map => `
+    <tr>
+      <td>
+        <div class="table-map-cell">
+          <img src="${map.image}" class="table-thumb" onerror="this.src='${map.fallbackImage || map.image}';" />
+          <strong>${map.title}</strong>
+        </div>
+      </td>
+      <td>${map.category}</td>
+      <td><span class="text-neon">$${Number(map.price).toFixed(2)}</span></td>
+      <td><span class="badge-count">${(map.products || []).length} منتج</span></td>
+      <td>
+        <div class="table-actions">
+          <button class="btn-action edit" onclick="editMap('${map.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-action delete" onclick="deleteMap('${map.id}')" title="حذف"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function showAddMapForm() {
+  document.getElementById("mapFormTitle").innerHTML = `<i class="fa-solid fa-plus-circle"></i> إضافة ماب جديد`;
+  document.getElementById("editMapId").value = "";
+  document.getElementById("mapTitleInput").value = "";
+  document.getElementById("mapCategoryInput").value = "";
+  document.getElementById("mapPriceInput").value = "";
+  document.getElementById("mapImageInput").value = "";
+  document.getElementById("mapDescInput").value = "";
+  document.getElementById("mapFormContainer").style.display = "block";
+}
+
+function hideMapForm() {
+  document.getElementById("mapFormContainer").style.display = "none";
+}
+
+function editMap(mapId) {
+  mapsList = getStoredMaps();
+  const map = mapsList.find(m => m.id === mapId);
+  if (!map) return;
+
+  document.getElementById("mapFormTitle").innerHTML = `<i class="fa-solid fa-pen-to-square"></i> تعديل ماب: ${map.title}`;
+  document.getElementById("editMapId").value = map.id;
+  document.getElementById("mapTitleInput").value = map.title;
+  document.getElementById("mapCategoryInput").value = map.category;
+  document.getElementById("mapPriceInput").value = map.price;
+  document.getElementById("mapImageInput").value = map.image;
+  document.getElementById("mapDescInput").value = map.description;
+  document.getElementById("mapFormContainer").style.display = "block";
+}
+
+function handleSaveMap(e) {
+  e.preventDefault();
+  const editId = document.getElementById("editMapId").value;
+  const title = document.getElementById("mapTitleInput").value.trim();
+  const category = document.getElementById("mapCategoryInput").value.trim();
+  const price = parseFloat(document.getElementById("mapPriceInput").value) || 0;
+  const image = document.getElementById("mapImageInput").value.trim();
+  const desc = document.getElementById("mapDescInput").value.trim();
+
+  mapsList = getStoredMaps();
+
+  if (editId) {
+    // Edit existing
+    const idx = mapsList.findIndex(m => m.id === editId);
+    if (idx !== -1) {
+      mapsList[idx].title = title;
+      mapsList[idx].category = category;
+      mapsList[idx].price = price;
+      mapsList[idx].priceDisplay = `$${price.toFixed(2)}`;
+      mapsList[idx].image = image;
+      mapsList[idx].description = desc;
+    }
+    showToast("تم تحديث بيانات الماب بنجاح!");
+  } else {
+    // Add new map
+    const newId = `custom-map-${Date.now()}`;
+    mapsList.push({
+      id: newId,
+      title: title,
+      category: category,
+      price: price,
+      priceDisplay: `$${price.toFixed(2)}`,
+      image: image || "assets/images/blox-fruits.png",
+      description: desc,
+      rating: 5.0,
+      reviewCount: 1,
+      products: []
+    });
+    showToast("تمت إضافة الماب الجديد بنجاح!");
+  }
+
+  saveStoredMaps(mapsList);
+  hideMapForm();
+  renderAdminMapsTable();
+  populateAdminMapSelect();
+  renderMaps();
+}
+
+function deleteMap(mapId) {
+  if (!confirm("هل أنت متأكد من رغبتك في حذف هذا الماب وجميع منتجاته من المتجر؟")) return;
+
+  mapsList = getStoredMaps();
+  mapsList = mapsList.filter(m => m.id !== mapId);
+  saveStoredMaps(mapsList);
+
+  renderAdminMapsTable();
+  populateAdminMapSelect();
+  renderMaps();
+  showToast("تم حذف الماب بنجاح!");
+}
+
+// Admin: Manage Sub-Products of selected map
+function populateAdminMapSelect() {
+  mapsList = getStoredMaps();
+  const select = document.getElementById("adminProductMapSelect");
+  if (!select) return;
+
+  select.innerHTML = mapsList.map(map => `
+    <option value="${map.id}">${map.title}</option>
+  `).join('');
+}
+
+function renderAdminProductsList() {
+  mapsList = getStoredMaps();
+  const select = document.getElementById("adminProductMapSelect");
+  const tbody = document.getElementById("adminProductsTableBody");
+  if (!select || !tbody) return;
+
+  const mapId = select.value;
+  const map = mapsList.find(m => m.id === mapId);
+  const products = (map && map.products) || [];
+
+  if (products.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">لا توجد منتجات مضافة لهذا الماب بعد. اضغط "إضافة منتج جديد" أعلاه.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = products.map(prod => `
+    <tr>
+      <td><strong>${prod.title}</strong></td>
+      <td><span class="text-neon">$${Number(prod.price).toFixed(2)}</span></td>
+      <td>${prod.desc || '—'}</td>
+      <td>
+        <div class="table-actions">
+          <button class="btn-action edit" onclick="editProduct('${map.id}', '${prod.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-action delete" onclick="deleteProduct('${map.id}', '${prod.id}')" title="حذف"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function showAddProductForm() {
+  document.getElementById("productFormTitle").innerHTML = `<i class="fa-solid fa-plus-circle"></i> إضافة منتج جديد للماب`;
+  document.getElementById("editProductId").value = "";
+  document.getElementById("productTitleInput").value = "";
+  document.getElementById("productPriceInput").value = "";
+  document.getElementById("productDescInput").value = "";
+  document.getElementById("productFormContainer").style.display = "block";
+}
+
+function hideProductForm() {
+  document.getElementById("productFormContainer").style.display = "none";
+}
+
+function editProduct(mapId, prodId) {
+  mapsList = getStoredMaps();
+  const map = mapsList.find(m => m.id === mapId);
+  if (!map) return;
+  const prod = (map.products || []).find(p => p.id === prodId);
+  if (!prod) return;
+
+  document.getElementById("productFormTitle").innerHTML = `<i class="fa-solid fa-pen-to-square"></i> تعديل منتج: ${prod.title}`;
+  document.getElementById("editProductId").value = prod.id;
+  document.getElementById("productTitleInput").value = prod.title;
+  document.getElementById("productPriceInput").value = prod.price;
+  document.getElementById("productDescInput").value = prod.desc || "";
+  document.getElementById("productFormContainer").style.display = "block";
+}
+
+function handleSaveProduct(e) {
+  e.preventDefault();
+  mapsList = getStoredMaps();
+  const select = document.getElementById("adminProductMapSelect");
+  const mapId = select.value;
+  const map = mapsList.find(m => m.id === mapId);
+  if (!map) return;
+
+  if (!map.products) map.products = [];
+
+  const editProdId = document.getElementById("editProductId").value;
+  const title = document.getElementById("productTitleInput").value.trim();
+  const price = parseFloat(document.getElementById("productPriceInput").value) || 0;
+  const desc = document.getElementById("productDescInput").value.trim();
+
+  if (editProdId) {
+    const idx = map.products.findIndex(p => p.id === editProdId);
+    if (idx !== -1) {
+      map.products[idx].title = title;
+      map.products[idx].price = price;
+      map.products[idx].desc = desc;
+    }
+    showToast("تم تحديث المنتج بنجاح!");
+  } else {
+    map.products.push({
+      id: `prod-${Date.now()}`,
+      title: title,
+      price: price,
+      desc: desc
+    });
+    showToast("تمت إضافة المنتج إلى الماب بنجاح!");
+  }
+
+  saveStoredMaps(mapsList);
+  hideProductForm();
+  renderAdminProductsList();
+  renderMaps();
+}
+
+function deleteProduct(mapId, prodId) {
+  if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
+
+  mapsList = getStoredMaps();
+  const map = mapsList.find(m => m.id === mapId);
+  if (!map) return;
+
+  map.products = (map.products || []).filter(p => p.id !== prodId);
+  saveStoredMaps(mapsList);
+
+  renderAdminProductsList();
+  renderMaps();
+  showToast("تم حذف المنتج بنجاح!");
+}
+
+// Utilities
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  const toastMsg = document.getElementById("toastMsg");
+  if (!toast || !toastMsg) return;
+
+  toastMsg.textContent = message;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 3500);
 }
 
 function openDiscordAlert() {
   alert("خدمة الطلبات الخاصة متاحة عبر الديسكورد الرسمي لـ Art Store!");
 }
 
-// Show Toast Notification
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  const toastMsg = document.getElementById("toastMsg");
-
-  if (!toast || !toastMsg) return;
-
-  toastMsg.textContent = message;
-  toast.classList.add("show");
-
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 3500);
-}
-
-// Setup Event Listeners
+// Event Listeners on Init
 document.addEventListener("DOMContentLoaded", () => {
   renderMaps();
 
-  // Login button click
+  // Navigation / Action Buttons
+  const openAdminBtn = document.getElementById("openAdminBtn");
+  if (openAdminBtn) openAdminBtn.addEventListener("click", openAdminPanel);
+
   const loginBtn = document.getElementById("loginBtn");
-  if (loginBtn) {
-    loginBtn.addEventListener("click", openLoginModal);
-  }
+  if (loginBtn) loginBtn.addEventListener("click", openLoginModal);
 
-  // Cart button click
   const cartBtn = document.getElementById("cartBtn");
-  if (cartBtn) {
-    cartBtn.addEventListener("click", openCartModal);
-  }
+  if (cartBtn) cartBtn.addEventListener("click", openCartModal);
 
-  // Close Modals
-  const closeModal = document.getElementById("closeModal");
-  const checkoutModal = document.getElementById("checkoutModal");
-  if (closeModal && checkoutModal) {
-    closeModal.addEventListener("click", () => checkoutModal.classList.remove("active"));
-    checkoutModal.addEventListener("click", (e) => {
-      if (e.target === checkoutModal) checkoutModal.classList.remove("active");
-    });
-  }
-
-  const closeLoginModal = document.getElementById("closeLoginModal");
-  const loginModal = document.getElementById("loginModal");
-  if (closeLoginModal && loginModal) {
-    closeLoginModal.addEventListener("click", () => loginModal.classList.remove("active"));
-    loginModal.addEventListener("click", (e) => {
-      if (e.target === loginModal) loginModal.classList.remove("active");
-    });
-  }
-
-  const closeCartModal = document.getElementById("closeCartModal");
-  const cartModal = document.getElementById("cartModal");
-  if (closeCartModal && cartModal) {
-    closeCartModal.addEventListener("click", () => cartModal.classList.remove("active"));
-    cartModal.addEventListener("click", (e) => {
-      if (e.target === cartModal) cartModal.classList.remove("active");
-    });
-  }
+  // Close Modal handlers
+  setupModalDismiss("loginModal", "closeLoginModal");
+  setupModalDismiss("cartModal", "closeCartModal");
+  setupModalDismiss("adminModal", "closeAdminModal");
+  setupModalDismiss("mapProductsModal", "closeMapProductsModal");
+  setupModalDismiss("checkoutModal", "closeModal");
 });
+
+function setupModalDismiss(modalId, closeBtnId) {
+  const modal = document.getElementById(modalId);
+  const btn = document.getElementById(closeBtnId);
+  if (btn && modal) {
+    btn.addEventListener("click", () => modal.classList.remove("active"));
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) modal.classList.remove("active");
+    });
+  }
+}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>متجر Art Store | مابات روبلوكس الاحترافية</title>
+  <title>متجر Art Store | مابات وعناصر روبلوكس الاحترافية</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -29,6 +29,9 @@
         <a href="#hero" class="nav-link active"><i class="fa-solid fa-house"></i> الرئيسية</a>
         <a href="#maps" class="nav-link"><i class="fa-solid fa-gamepad"></i> تصفح المابات</a>
         <a href="#custom-orders" class="nav-link"><i class="fa-solid fa-wand-magic-sparkles"></i> طلبات خاصة</a>
+        <button class="nav-link admin-nav-btn" id="openAdminBtn" style="background: none; border: none; cursor: pointer;">
+          <i class="fa-solid fa-shield-halved text-neon"></i> لوحة التحكم
+        </button>
       </nav>
 
       <div class="nav-actions">
@@ -54,7 +57,9 @@
       </p>
       <div class="hero-buttons">
         <a href="#maps" class="btn btn-primary"><i class="fa-solid fa-compass"></i> تصفح المابات الآن</a>
-        <a href="#custom-orders" class="btn btn-secondary"><i class="fa-solid fa-comments"></i> طلب ماب خاص</a>
+        <button class="btn btn-secondary" onclick="openAdminPanel()">
+          <i class="fa-solid fa-sliders"></i> لوحة تحكم المتجر
+        </button>
       </div>
     </div>
   </section>
@@ -64,10 +69,10 @@
     <div class="section-header">
       <div class="section-title-wrap">
         <h2 class="section-title"><i class="fa-solid fa-fire text-neon"></i> المابات المتاحة للبيع</h2>
-        <p class="section-desc">مابات روبلوكس المعتمدة والحصرية المتوفرة حالياً للشراء الفوري مع الدعم الفني والتسليم السريع.</p>
+        <p class="section-desc">مابات روبلوكس المعتمدة والحصرية مع إمكانية استكشاف وشراء المنتجات والعناصر الداخلية لكل ماب.</p>
       </div>
       <div class="filter-badge">
-        <span><i class="fa-solid fa-check-circle"></i> 5 مابات أصلية معتمدة</span>
+        <span id="mapsCountBadge"><i class="fa-solid fa-check-circle"></i> 5 مابات أصلية معتمدة</span>
       </div>
     </div>
 
@@ -91,29 +96,258 @@
     </div>
   </section>
 
-  <!-- Login Modal -->
+  <!-- ================= AUTHENTICATION MODAL (Email / Phone + OTP Verification) ================= -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-card">
       <button class="modal-close" id="closeLoginModal">&times;</button>
+
+      <!-- Step 1: Input Contact Details -->
+      <div id="authStep1">
+        <div class="modal-header">
+          <div class="modal-icon"><i class="fa-solid fa-shield-cat"></i></div>
+          <h3>تسجيل الدخول / إنشاء حساب</h3>
+          <p class="modal-subtitle">أدخل بريدك الإلكتروني أو رقم جوالك لتصلك رسالة رمز التأكيد (OTP)</p>
+        </div>
+        <div class="modal-body">
+          <div class="auth-tabs">
+            <button class="auth-tab-btn active" id="tabEmailBtn" onclick="switchAuthTab('email')">
+              <i class="fa-regular fa-envelope"></i> بالبريد الإلكتروني
+            </button>
+            <button class="auth-tab-btn" id="tabPhoneBtn" onclick="switchAuthTab('phone')">
+              <i class="fa-solid fa-phone"></i> برقم الجوال
+            </button>
+          </div>
+
+          <form class="checkout-form" onsubmit="handleSendOtp(event)">
+            <div class="form-group" id="emailGroup">
+              <label><i class="fa-solid fa-envelope"></i> البريد الإلكتروني</label>
+              <input type="email" id="authEmailInput" placeholder="name@example.com" />
+            </div>
+            <div class="form-group" id="phoneGroup" style="display: none;">
+              <label><i class="fa-solid fa-mobile-screen-button"></i> رقم الجوال (مع رمز الدولة)</label>
+              <input type="tel" id="authPhoneInput" placeholder="+966 50 000 0000" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+              <i class="fa-solid fa-paper-plane"></i> إرسال رمز التحقق
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Step 2: Verification Code (OTP) -->
+      <div id="authStep2" style="display: none;">
+        <div class="modal-header">
+          <div class="modal-icon"><i class="fa-solid fa-key"></i></div>
+          <h3>تأكيد رمز التحقق</h3>
+          <p class="modal-subtitle" id="otpSentTargetText">تم إرسال كود التأكيد إلى حسابك</p>
+        </div>
+        <div class="modal-body">
+          <div class="otp-banner">
+            <span><i class="fa-solid fa-comment-sms"></i> رسالة المحاكاة المباشرة: رمز التحقق الخاص بك هو: <strong id="simulatedCodeText" class="text-neon">1234</strong></span>
+          </div>
+          <form class="checkout-form" onsubmit="handleVerifyOtp(event)">
+            <div class="form-group">
+              <label><i class="fa-solid fa-lock"></i> أدخل رمز التأكيد (4 أرقام)</label>
+              <input type="text" id="otpCodeInput" maxlength="6" placeholder="مثال: 1234" required style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+              <i class="fa-solid fa-circle-check"></i> تأكيد ودخول الحساب
+            </button>
+            <button type="button" class="btn btn-secondary btn-block" style="margin-top: 0.5rem;" onclick="backToAuthStep1()">
+              <i class="fa-solid fa-arrow-right"></i> تعديل الرقم / البريد
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAP PRODUCTS MODAL (عرض منتجات الماب الداخلية) ================= -->
+  <div class="modal-overlay" id="mapProductsModal">
+    <div class="modal-card modal-large">
+      <button class="modal-close" id="closeMapProductsModal">&times;</button>
       <div class="modal-header">
-        <div class="modal-icon"><i class="fa-solid fa-user-astronaut"></i></div>
-        <h3>تسجيل الدخول إلى Art Store</h3>
-        <p class="modal-subtitle">سجل دخولك لمتابعة مشترياتك وتحميل المابات فوراً</p>
+        <div class="modal-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+        <h3 id="modalProductsMapTitle">منتجات الماب</h3>
+        <p class="modal-subtitle" id="modalProductsMapDesc">استعرض واشترِ العناصر والسكريبتات المخصصة لهذا الماب</p>
       </div>
       <div class="modal-body">
-        <form class="checkout-form" id="loginForm" onsubmit="handleLoginSubmit(event)">
-          <div class="form-group">
-            <label><i class="fa-solid fa-envelope"></i> البريد الإلكتروني أو اسم المستخدم</label>
-            <input type="text" id="usernameInput" placeholder="أدخل اسمك أو بريدك" required />
+        <div class="inner-products-grid" id="innerProductsGrid">
+          <!-- Dynamically populated products of the selected map -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= COMPREHENSIVE ADMIN PANEL (لوحة التحكم الشاملة) ================= -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal-card modal-admin">
+      <button class="modal-close" id="closeAdminModal">&times;</button>
+
+      <!-- Admin Login Lock (فقط للإدارة) -->
+      <div id="adminLockScreen">
+        <div class="modal-header">
+          <div class="modal-icon"><i class="fa-solid fa-user-shield"></i></div>
+          <h3>لوحة تحكم إدارة Art Store</h3>
+          <p class="modal-subtitle">منطقة محمية ومخصصة لإدارة المتجر فقط</p>
+        </div>
+        <div class="modal-body">
+          <form class="checkout-form" onsubmit="handleAdminLogin(event)">
+            <div class="form-group">
+              <label><i class="fa-solid fa-key"></i> الرمز السري للإدارة (PIN / Password)</label>
+              <input type="password" id="adminPassInput" placeholder="أدخل كلمة مرور الإدارة (افتراضي: admin123)" required />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+              <i class="fa-solid fa-lock-open"></i> الدخول إلى لوحة التحكم
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Admin Dashboard Content -->
+      <div id="adminContentScreen" style="display: none;">
+        <div class="admin-top-bar">
+          <div class="admin-top-title">
+            <i class="fa-solid fa-gauge-high text-neon"></i>
+            <h2>لوحة التحكم الشاملة</h2>
           </div>
-          <div class="form-group">
-            <label><i class="fa-solid fa-lock"></i> كلمة المرور</label>
-            <input type="password" placeholder="••••••••" required />
-          </div>
-          <button type="submit" class="btn btn-primary btn-block">
-            <i class="fa-solid fa-right-to-bracket"></i> دخول
+          <button class="btn btn-secondary btn-sm" onclick="adminLogout()">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> خروج الإدارة
           </button>
-        </form>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="admin-nav-tabs">
+          <button class="admin-tab-btn active" id="tabAdminMaps" onclick="switchAdminTab('maps')">
+            <i class="fa-solid fa-map-location-dot"></i> إدارة المابات
+          </button>
+          <button class="admin-tab-btn" id="tabAdminProducts" onclick="switchAdminTab('products')">
+            <i class="fa-solid fa-box-open"></i> إدارة منتجات المابات
+          </button>
+        </div>
+
+        <!-- Section: Manage Maps -->
+        <div id="adminMapsSection" class="admin-view-section">
+          <div class="admin-sub-header">
+            <h3>قائمة المابات الأساسية في المتجر</h3>
+            <button class="btn btn-primary btn-sm" onclick="showAddMapForm()">
+              <i class="fa-solid fa-plus"></i> إضافة ماب جديد
+            </button>
+          </div>
+
+          <!-- Add / Edit Map Form Box -->
+          <div id="mapFormContainer" class="admin-form-box" style="display: none;">
+            <h4 id="mapFormTitle"><i class="fa-solid fa-pen-to-square"></i> إضافة ماب جديد</h4>
+            <form onsubmit="handleSaveMap(event)">
+              <input type="hidden" id="editMapId" value="" />
+              <div class="form-row">
+                <div class="form-group">
+                  <label>اسم الماب</label>
+                  <input type="text" id="mapTitleInput" required placeholder="مثال: ماب الرعب The Mimic" />
+                </div>
+                <div class="form-group">
+                  <label>التصنيف</label>
+                  <input type="text" id="mapCategoryInput" required placeholder="مثال: رعب / مغامرة" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>السعر بالدولار ($)</label>
+                  <input type="number" step="0.01" id="mapPriceInput" required placeholder="29.99" />
+                </div>
+                <div class="form-group">
+                  <label>رابط الصورة أو مسارها</label>
+                  <input type="text" id="mapImageInput" required placeholder="assets/images/blox-fruits.png أو رابط صورة" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>وصف الماب</label>
+                <textarea id="mapDescInput" rows="2" required placeholder="اكتب وصف الماب ومميزاته..."></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> حفظ الماب</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="hideMapForm()">إلغاء</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Maps Table -->
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>الماب</th>
+                  <th>التصنيف</th>
+                  <th>السعر</th>
+                  <th>المنتجات الداخلية</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="adminMapsTableBody">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section: Manage Sub-Products inside Maps -->
+        <div id="adminProductsSection" class="admin-view-section" style="display: none;">
+          <div class="admin-sub-header">
+            <div class="filter-map-select-wrap">
+              <label>اختر الماب لإدارة منتجاته:</label>
+              <select id="adminProductMapSelect" onchange="renderAdminProductsList()">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="showAddProductForm()">
+              <i class="fa-solid fa-plus"></i> إضافة منتج داخل هذا الماب
+            </button>
+          </div>
+
+          <!-- Add / Edit Product Form Box -->
+          <div id="productFormContainer" class="admin-form-box" style="display: none;">
+            <h4 id="productFormTitle"><i class="fa-solid fa-cube"></i> إضافة منتج جديد</h4>
+            <form onsubmit="handleSaveProduct(event)">
+              <input type="hidden" id="editProductId" value="" />
+              <div class="form-row">
+                <div class="form-group">
+                  <label>اسم المنتج / العنصر</label>
+                  <input type="text" id="productTitleInput" required placeholder="مثال: حزمة سيوف أسطورية أو فاكهة تنين" />
+                </div>
+                <div class="form-group">
+                  <label>السعر بالدولار ($)</label>
+                  <input type="number" step="0.01" id="productPriceInput" required placeholder="9.99" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>وصف المنتج</label>
+                <textarea id="productDescInput" rows="2" required placeholder="وصف المنتج وكيفية استلامه..."></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> حفظ المنتج</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="hideProductForm()">إلغاء</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Products Table -->
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>اسم المنتج</th>
+                  <th>السعر</th>
+                  <th>الوصف</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="adminProductsTableBody">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -136,24 +370,24 @@
             <span class="total-price" id="cartTotalPrice">$0.00</span>
           </div>
           <button class="btn btn-primary btn-block" onclick="checkoutAllCart()">
-            <i class="fa-solid fa-credit-card"></i> إتمام الدفع والاستلام
+            <i class="fa-solid fa-credit-card"></i> إتمام الدفع والاستلام الفوري
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Buy Now / Checkout Modal -->
+  <!-- Single Buy Checkout Modal -->
   <div class="modal-overlay" id="checkoutModal">
     <div class="modal-card">
       <button class="modal-close" id="closeModal">&times;</button>
       <div class="modal-header">
         <div class="modal-icon"><i class="fa-solid fa-bag-shopping"></i></div>
-        <h3 id="modalMapTitle">شراء الماب</h3>
+        <h3 id="modalMapTitle">شراء المنتج</h3>
         <p id="modalMapPrice" class="modal-price"></p>
       </div>
       <div class="modal-body">
-        <p class="modal-note"><i class="fa-solid fa-circle-check text-neon"></i> يتم تسليم ملف الماب بصيغة <code>.rbxl</code> مباشرة بعد إتمام الطلب مع سكريبتات مفتوحة المصدر بالكامل.</p>
+        <p class="modal-note"><i class="fa-solid fa-circle-check text-neon"></i> يتم تسليم ملفات الماب والسكريبتات بصيغة <code>.rbxl</code> مع دعم فني مستمر.</p>
         
         <form class="checkout-form" id="checkoutForm" onsubmit="handleCheckout(event)">
           <div class="form-group">
@@ -193,6 +427,7 @@
         <a href="#hero">الرئيسية</a>
         <a href="#maps">تصفح المابات</a>
         <a href="#custom-orders">طلبات خاصة</a>
+        <a href="javascript:void(0)" onclick="openAdminPanel()">لوحة التحكم (الإدارة)</a>
       </div>
       <div class="footer-security">
         <h4>الأمان والموثوقية</h4>
